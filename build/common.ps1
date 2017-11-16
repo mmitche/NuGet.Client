@@ -319,7 +319,9 @@ Function Test-BuildEnvironment {
         [switch]$CI
     )
     if (-not (Test-Path $ConfigureJson)) {
-        Error-Log 'Build environment is not configured. Please run configure.ps1 first.' -Fatal
+        # Run the configure script if it hasn't been executed
+        $configureScriptPath = Join-Path $NuGetClientRoot configure.ps1
+        Invoke-Expression $configureScriptPath
     }
 
     $Installed = (Test-Path $DotNetExe) -and (Test-Path $NuGetExe)
