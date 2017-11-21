@@ -12,7 +12,6 @@ namespace NuGet.Packaging.Signing
     /// </summary>
     public static class SigningUtility
     {
-
         /// <summary>
         /// Checks the validity of an X509Certificate2 is valid by building it's X509Chain.
         /// </summary>

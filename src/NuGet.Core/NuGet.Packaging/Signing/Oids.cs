@@ -34,5 +34,14 @@ namespace NuGet.Packaging.Signing
 
         // RFC 3161 "id-ct-TSTInfo" https://tools.ietf.org/html/rfc3161#section-2.4.2
         public const string TSTInfoContentTypeOid = "1.2.840.113549.1.9.16.1.4";
+
+        // RFC 5126 "commitment-type-indication" https://tools.ietf.org/html/rfc5126.html#section-5.11.1
+        public const string CommitmentTypeIndication = "1.2.840.113549.1.9.16.2.16";
+
+        // RFC 5126 "id-cti-ets-proofOfOrigin" https://tools.ietf.org/html/rfc5126.html#section-5.11.1
+        public const string CommitmentTypeIdentifierProofOfOrigin = "1.2.840.113549.1.9.16.6.1";
+
+        // RFC 5126 "id-cti-ets-proofOfReceipt" https://tools.ietf.org/html/rfc5126.html#section-5.11.1
+        public const string CommitmentTypeIdentifierProofOfReceipt = "1.2.840.113549.1.9.16.6.2";
     }
 }

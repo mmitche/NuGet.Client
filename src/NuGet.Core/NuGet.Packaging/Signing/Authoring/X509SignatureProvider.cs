@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using NuGet.Common;
+using NuGet.Packaging.Signing.DerEncoding;
 
 #if IS_DESKTOP
 using System.Security.Cryptography.Pkcs;
@@ -72,10 +73,29 @@ namespace NuGet.Packaging.Signing
 
             cmsSigner.IncludeOption = X509IncludeOption.WholeChain;
 
+            // Create SignedCms
             var cms = new SignedCms(contentInfo);
+
+            // Add attributes before signing.
+            AddSignedAttributes(cmsSigner, cert);
+
+            // Sign
             cms.ComputeSignature(cmsSigner);
 
             return Task.FromResult(Signature.Load(cms));
+        }
+
+        private static void AddSignedAttributes(CmsSigner cmsSigner, X509Certificate2 cert)
+        {
+            var sequence = new List<byte[][]>() { DerEncoder.SegmentedEncodeOid(Oids.CommitmentTypeIdentifierProofOfOrigin) };
+            var commitmentTypeData = DerEncoder.ConstructSequence(sequence);
+
+            var oid = new Oid(Oids.CommitmentTypeIndication);
+            var attribute = new AsnEncodedData(Oids.CommitmentTypeIndication, commitmentTypeData);
+
+            cmsSigner.SignedAttributes.Add(
+                new CryptographicAttributeObject(oid,
+                new AsnEncodedDataCollection(attribute)));
         }
 
         private Task<Signature> TimestampSignature(SignPackageRequest request, ILogger logger, Signature signature, CancellationToken token)
