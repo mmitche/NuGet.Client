@@ -27,5 +27,12 @@ namespace NuGet.Packaging.Signing
         /// </summary>
         public X509Certificate2 Certificate { get; set; }
 
+#if IS_DESKTOP
+        /// <summary>
+        /// PrivateKey is only used in PRSS sign.
+        /// </summary>
+        public System.Security.Cryptography.CngKey PrivateKey { get; set; }
+#endif
+
     }
 }

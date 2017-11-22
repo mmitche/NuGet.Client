@@ -46,7 +46,7 @@ namespace NuGet.Packaging.Signing
                 throw new ArgumentNullException(nameof(logger));
             }
 
-            var authorSignature = CreateSignature(request.Certificate, signatureManifest);
+            var authorSignature = CreateSignature(request, signatureManifest);
 
             if (_timestampProvider == null)
             {
@@ -59,16 +59,22 @@ namespace NuGet.Packaging.Signing
         }
 
 #if IS_DESKTOP
-        private Task<Signature> CreateSignature(X509Certificate2 cert, SignatureManifest signatureManifest)
+        private Task<Signature> CreateSignature(SignPackageRequest request, SignatureManifest signatureManifest)
         {
-            var contentInfo = new ContentInfo(signatureManifest.GetBytes());
-            var cmsSigner = new CmsSigner(SubjectIdentifierType.SubjectKeyIdentifier, cert);
-            var signingTime = new Pkcs9SigningTime();
+            var attributes = GetSignAttributes();
 
-            cmsSigner.SignedAttributes.Add(
-                new CryptographicAttributeObject(
-                    signingTime.Oid,
-                    new AsnEncodedDataCollection(signingTime)));
+            if (request.PrivateKey != null)
+            {
+                return CreateSignature(request.Certificate, signatureManifest, request.PrivateKey, request.SignatureHashAlgorithm, attributes);
+            }
+
+            var contentInfo = new ContentInfo(signatureManifest.GetBytes());
+            var cmsSigner = new CmsSigner(SubjectIdentifierType.SubjectKeyIdentifier, request.Certificate);
+
+            foreach (var attribute in attributes)
+            {
+                cmsSigner.SignedAttributes.Add(attribute);
+            }
 
             cmsSigner.IncludeOption = X509IncludeOption.WholeChain;
 
@@ -76,6 +82,32 @@ namespace NuGet.Packaging.Signing
             cms.ComputeSignature(cmsSigner);
 
             return Task.FromResult(Signature.Load(cms));
+        }
+
+        private Task<Signature> CreateSignature(
+            X509Certificate2 cert,
+            SignatureManifest signatureManifest,
+            CngKey privateKey,
+            Common.HashAlgorithmName hashAlgorithm,
+            CryptographicAttributeObjectCollection attributes
+            )
+        {
+            var cms = NativeUtilities.NativeSign(
+                signatureManifest.GetBytes(), cert, privateKey, attributes, hashAlgorithm);
+
+            return Task.FromResult(Signature.Load(cms));
+        }
+
+        private CryptographicAttributeObjectCollection GetSignAttributes()
+        {
+            var attributes = new CryptographicAttributeObjectCollection();
+
+            var signingTime = new Pkcs9SigningTime();
+            attributes.Add(new CryptographicAttributeObject(
+                    signingTime.Oid,
+                    new AsnEncodedDataCollection(signingTime)));
+
+            return attributes;
         }
 
         private Task<Signature> TimestampSignature(SignPackageRequest request, ILogger logger, Signature signature, CancellationToken token)
@@ -91,10 +123,11 @@ namespace NuGet.Packaging.Signing
             return _timestampProvider.TimestampSignatureAsync(timestampRequest, logger, token);
         }
 #else
-        private Task<Signature> CreateSignature(X509Certificate2 cert, SignatureManifest signatureManifest)
+        private Task<Signature> CreateSignature(SignPackageRequest request, SignatureManifest signatureManifest)
         {
             throw new NotSupportedException();
         }
+
 
         private Task<Signature> TimestampSignature(SignPackageRequest request, ILogger logger, Signature signature, CancellationToken token)
         {
