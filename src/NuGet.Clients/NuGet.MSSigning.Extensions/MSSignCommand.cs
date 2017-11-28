@@ -2,19 +2,19 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using NuGet.CommandLine;
 using NuGet.Commands;
 using NuGet.Common;
 using NuGet.Packaging.Signing;
-using System.Security.Cryptography;
-using System.Collections.Generic;
 using NuGet.Protocol;
-using System.Threading;
 
 namespace NuGet.MSSigning.Extensions
 {
@@ -79,7 +79,7 @@ namespace NuGet.MSSigning.Extensions
             ValidatePackagePath();
             WarnIfNoTimestamper(Console);
             ValidateCertificateInputs();
-            ValidateOutputDirectory();
+            EnsureOutputDirectory();
 
             var signingSpec = SigningSpecifications.V1;
             var hashAlgorithm = ValidateAndParseHashAlgorithm(HashAlgorithm, nameof(HashAlgorithm), signingSpec);
@@ -163,10 +163,9 @@ namespace NuGet.MSSigning.Extensions
             }
         }
 
-        private void ValidateOutputDirectory()
+        private void EnsureOutputDirectory()
         {
-            if (!string.IsNullOrEmpty(OutputDirectory) &&
-                            !Directory.Exists(OutputDirectory))
+            if (!string.IsNullOrEmpty(OutputDirectory))
             {
                 Directory.CreateDirectory(OutputDirectory);
             }
@@ -175,7 +174,7 @@ namespace NuGet.MSSigning.Extensions
         private void ValidateCertificateInputs()
         {
             if (string.IsNullOrEmpty(CertificateFile)
-                && Path.GetExtension(CertificateFile).Equals(".p7b", StringComparison.InvariantCultureIgnoreCase))
+                || CertificateFile.EndsWith(".p7b", StringComparison.OrdinalIgnoreCase))
             {
                 // Throw if user gave no certificate input
                 throw new ArgumentException(NuGetMSSignCommand.MSSignCommandNoValidCertificateFileException);
@@ -183,21 +182,21 @@ namespace NuGet.MSSigning.Extensions
 
             if (string.IsNullOrEmpty(CSPName))
             {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
                         NuGetMSSignCommand.MSSignCommandInvalidArgumentException,
                         nameof(CSPName)));
             }
 
             if (string.IsNullOrEmpty(KeyContainer))
             {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
                         NuGetMSSignCommand.MSSignCommandInvalidArgumentException,
                         nameof(KeyContainer)));
             }
 
             if (string.IsNullOrEmpty(CertificateFingerprint))
             {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
                         NuGetMSSignCommand.MSSignCommandInvalidArgumentException,
                         nameof(CertificateFingerprint)));
             }
@@ -209,13 +208,17 @@ namespace NuGet.MSSigning.Extensions
 
             if (!string.IsNullOrEmpty(value))
             {
-                if (!spec.AllowedHashAlgorithms.Contains(value, StringComparer.InvariantCultureIgnoreCase) ||
-                    !Enum.TryParse(value, ignoreCase: true, result: out hashAlgorithm))
+                if (!spec.AllowedHashAlgorithms.Contains(value, StringComparer.InvariantCultureIgnoreCase))
                 {
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                    hashAlgorithm = CryptoHashUtility.GetHashAlgorithmName(value);
+                }
+            }
+
+            if (hashAlgorithm == Common.HashAlgorithmName.Unknown)
+            {
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
                         NuGetMSSignCommand.MSSignCommandInvalidArgumentException,
                         name));
-                }
             }
 
             return hashAlgorithm;
