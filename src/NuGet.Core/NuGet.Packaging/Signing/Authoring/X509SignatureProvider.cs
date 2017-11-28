@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NuGet.Common;
 using NuGet.Packaging.Signing.DerEncoding;
+using System.Collections.Generic;
 
 #if IS_DESKTOP
 using System.Security.Cryptography.Pkcs;
