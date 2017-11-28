@@ -47,12 +47,6 @@ namespace NuGet.CommandLine
         [Option(typeof(NuGetCommand), "SignCommandCertificatePasswordDescription")]
         public string CertificatePassword { get; set; }
 
-        [Option(typeof(NuGetCommand), "SignCommandCryptographicServiceProviderDescription")]
-        public string CryptographicServiceProvider { get; set; }
-
-        [Option(typeof(NuGetCommand), "SignCommandKeyContainerDescription")]
-        public string KeyContainer { get; set; }
-
         [Option(typeof(NuGetCommand), "SignCommandHashAlgorithmDescription")]
         public string HashAlgorithm { get; set; }
 
@@ -104,8 +98,6 @@ namespace NuGet.CommandLine
                 CertificateSubjectName = CertificateSubjectName,
                 CertificateFingerprint = CertificateFingerprint,
                 CertificatePassword = CertificatePassword,
-                CryptographicServiceProvider = CryptographicServiceProvider,
-                KeyContainer = KeyContainer,
                 SignatureHashAlgorithm = hashAlgorithm,
                 Logger = Console,
                 Overwrite = Overwrite,

@@ -214,9 +214,6 @@ namespace NuGet.Packaging.Signing
                     }
 
                     signerInfo.rgAuthAttr = new IntPtr(pCryptAttributes);
-                    // Since we are returning IntPtr, we MUST supress finalizer, otherwise
-                    // the GC can collect the memory underneath us!!!
-                    GC.SuppressFinalize(signerInfo.rgAuthAttr);
                 }
             }
             return signerInfo;
