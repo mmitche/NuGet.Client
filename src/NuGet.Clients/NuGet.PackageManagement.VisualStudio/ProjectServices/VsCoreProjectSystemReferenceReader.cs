@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -64,26 +64,24 @@ namespace NuGet.PackageManagement.VisualStudio
                 {
                     var reference3 = childReference as Reference3;
 
-                    // Set missing reference if
-                    // 1. reference is null OR
-                    // 2. reference is not resolved which means project is not loaded or assembly not found.
-                    if (reference3 == null || !reference3.Resolved)
+                    // Verify that this is a project reference
+                    if (reference3 != null && reference3.SourceProject != null)
                     {
-                        // Skip missing references and show a warning
-                        hasMissingReferences = true;
-                        continue;
-                    }
+                        // Check that it is valid and resolved
+                        if (!reference3.Resolved)
+                        {
+                            // Skip missing references and show a warning
+                            hasMissingReferences = true;
+                            continue;
+                        }
 
-                    // Skip missing references
-                    if (childReference.SourceProject != null)
-                    {
-                        if (EnvDTEProjectUtility.HasUnsupportedProjectCapability(childReference.SourceProject))
+                        if (EnvDTEProjectUtility.HasUnsupportedProjectCapability(reference3.SourceProject))
                         {
                             // Skip this shared project
                             continue;
                         }
 
-                        var childProjectPath = EnvDTEProjectInfoUtility.GetFullProjectPath(childReference.SourceProject);
+                        var childProjectPath = EnvDTEProjectInfoUtility.GetFullProjectPath(reference3.SourceProject);
 
                         // Skip projects which have ReferenceOutputAssembly=false
                         if (!string.IsNullOrEmpty(childProjectPath)
@@ -190,7 +188,7 @@ namespace NuGet.PackageManagement.VisualStudio
                                 // 3. Follow the reference to the DTE project and get the unique name
                                 var reference = childObject as Reference3;
 
-                                if (reference != null && reference.Resolved && reference.SourceProject != null)
+                                if (reference != null && reference.SourceProject != null && reference.Resolved)
                                 {
                                     var childPath = EnvDTEProjectInfoUtility
                                         .GetFullProjectPath(reference.SourceProject);
