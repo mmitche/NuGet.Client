@@ -6,17 +6,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NuGet.Packaging.Signing;
 using NuGet.Packaging.Signing.DerEncoding;
 using NuGet.Test.Utility;
+using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Asn1.Esf;
+using Org.BouncyCastle.Cms;
 using Test.Utility.Signing;
 using Xunit;
+using Org.BouncyCastle.Math;
 
 namespace NuGet.Packaging.Test
 {
@@ -48,6 +52,32 @@ namespace NuGet.Packaging.Test
                 }
 
                 attributeOids.Should().Contain(Oids.CommitmentTypeIndication);
+
+                var data = new CmsSignedData(signature.GetBytes());
+                var signerInfos = data.GetSignerInfos();
+                var signers = signerInfos.GetSigners();
+                signers.Count.Should().Be(1);
+
+                foreach (var signerObj in signers)
+                {
+                    var signer = (SignerInformation)signerObj;
+                    var typeIndicationValue = signer.SignedAttributes[new DerObjectIdentifier(Oids.CommitmentTypeIndication)];
+
+                    var actualEncoded = typeIndicationValue.GetEncoded();
+
+                    var expectedAttribute = new CommitmentTypeQualifier(new DerObjectIdentifier(Oids.CommitmentTypeIdentifierProofOfOrigin));
+                    var expectedEncoded = expectedAttribute.GetEncoded();
+
+                    actualEncoded.Should().BeSameAs(expectedEncoded);
+
+                    typeIndicationValue.AttrType.Id.Should().Be(Oids.CommitmentTypeIndication);
+                    typeIndicationValue.AttrValues.Count.Should().Be(1);
+                    var attributeValue = typeIndicationValue.AttrValues.ToArray()[0];
+
+                }
+
+                // bouncy castle version
+                
             }
         }
     }

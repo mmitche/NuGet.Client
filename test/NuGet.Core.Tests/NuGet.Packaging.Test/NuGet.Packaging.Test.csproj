@@ -18,6 +18,7 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
     <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Security" />
   </ItemGroup>
 
   <ItemGroup>
