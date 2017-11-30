@@ -70,6 +70,18 @@ namespace NuGet.Packaging.Signing
             return chain.Build(certificate);
         }
 
+        public static bool CertificateHasCngPrivateKey(X509Certificate2 certificate)
+        {
+            var result = false;
+#if IS_DESKTOP
+            if (certificate.HasPrivateKey && certificate.PrivateKey == null)
+            {
+                result = true;
+            }
+#endif
+            return result;
+        }
+
         /// <summary>
         /// Checks if an X509Certificate2 contains a Enhanced Key Usage specified in the form of an Oid.
         /// </summary>

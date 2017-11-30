@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.IO.Compression;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +20,6 @@ namespace NuGet.Commands
     /// </summary>
     public class SignCommandRunner : ISignCommandRunner
     {
-
         public async Task<int> ExecuteCommandAsync(SignArgs signArgs)
         {
             var success = true;
@@ -30,6 +29,8 @@ namespace NuGet.Commands
             LocalFolderUtility.EnsurePackageFileExists(signArgs.PackagePath, packagesToSign);
 
             var cert = await GetCertificateAsync(signArgs);
+
+            ValidateCertificate(cert);
 
             signArgs.Logger.LogInformation(Environment.NewLine);
             signArgs.Logger.LogInformation(string.Format(CultureInfo.CurrentCulture,
@@ -83,6 +84,53 @@ namespace NuGet.Commands
             }
 
             return success ? 0 : 1;
+        }
+
+        /// <summary>
+        /// Used to validate a user specified certificate.
+        /// </summary>
+        /// <param name="cert">Certificate to be validated</param>
+        private static void ValidateCertificate(X509Certificate2 cert)
+        {
+            //if (SigningUtility.CertificateHasCngPrivateKey(cert))
+            //{
+            //    // The private key is CNG
+            //    // This is currently not supported by SignedCms.ComputeSignature
+            //    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
+            //        "The following certificate cannot be used for signing a package as it contains a CNG private key - {0}",
+            //        $"{Environment.NewLine}{CertificateUtility.X509Certificate2ToString(cert)}"));
+            //}
+
+            if (SigningUtility.CertificateContainsEku(cert, Oids.CodeSigningEkuOid))
+            {
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
+                    "The following certificate cannot be used for signing a package as it does not have Code Signing enhanced key usage - {0}",
+                    $"{Environment.NewLine}{CertificateUtility.X509Certificate2ToString(cert)}"));
+            }
+        }
+
+        /// <summary>
+        /// Used to filter certificates before displaying matching certificates.
+        /// </summary>
+        /// <param name="cert">Certificate to be validated</param>
+        /// <returns>Bool indicating if a certificate can be used for signing a package or not.</returns>
+        private static bool IsCertificateValid(X509Certificate2 cert)
+        {
+            var result = true;
+
+            if (SigningUtility.CertificateContainsEku(cert, Oids.CodeSigningEkuOid))
+            {
+                result = false;
+            }
+
+            //if (SigningUtility.CertificateHasCngPrivateKey(cert))
+            //{
+            //    // The private key is CNG
+            //    // This is currently not supported by SignedCms.ComputeSignature
+            //    result = false;
+            //}
+
+            return result;
         }
 
         private static ISignatureProvider GetSignatureProvider(SignArgs signArgs)
@@ -205,7 +253,7 @@ namespace NuGet.Commands
                 {
                     // Else launch UI to select
                     matchingCertCollection = X509Certificate2UI.SelectFromCollection(
-                        matchingCertCollection,
+                        FilterMatchingCertificates(matchingCertCollection),
                         Strings.SignCommandDialogTitle,
                         Strings.SignCommandDialogMessage,
                         X509SelectionFlag.SingleSelection);
@@ -223,6 +271,21 @@ namespace NuGet.Commands
             }
 
             return matchingCertCollection[0];
+        }
+
+        private static X509Certificate2Collection FilterMatchingCertificates(X509Certificate2Collection matchingCollection)
+        {
+            var filteredCollection = new X509Certificate2Collection();
+
+            foreach(var cert in matchingCollection)
+            {
+                if (IsCertificateValid(cert))
+                {
+                    filteredCollection.Add(cert);
+                }
+            }
+
+            return filteredCollection;
         }
     }
 }
