@@ -63,9 +63,9 @@ namespace NuGet.Commands
 
             graphs.AddRange(frameworkGraphs);
 
-            success = await InstallPackagesAsync(graphs,
+            success &= await InstallPackagesAsync(graphs,
                 userPackageFolder,
-                token) && success;
+                token);
 
             var localRepositories = new List<NuGetv3LocalRepository>();
             localRepositories.Add(userPackageFolder);
@@ -109,9 +109,9 @@ namespace NuGet.Commands
                 graphs.AddRange(runtimeGraphs);
 
                 // Install runtime-specific packages
-                success = await InstallPackagesAsync(runtimeGraphs,
+                success &= await InstallPackagesAsync(runtimeGraphs,
                     userPackageFolder,
-                    token) && success;
+                    token);
             }
 
             // Update the logger with the restore target graphs
@@ -122,7 +122,7 @@ namespace NuGet.Commands
             // versions that have been bumped up unexpectedly.
             await UnexpectedDependencyMessages.LogAsync(graphs, _request.Project, _logger);
 
-            success = (await ResolutionSucceeded(graphs, context, token)) && success;
+            success &= (await ResolutionSucceeded(graphs, context, token));
 
             return Tuple.Create(success, graphs, allRuntimes);
         }
@@ -227,7 +227,7 @@ namespace NuGet.Commands
                 {
                     foreach (var match in packagesToInstall)
                     {
-                        success = (await InstallPackageAsync(match, userPackageFolder, _request.PackageExtractionContext, token)) && success;
+                        success &= (await InstallPackageAsync(match, userPackageFolder, _request.PackageExtractionContext, token));
                     }
                 }
                 else
