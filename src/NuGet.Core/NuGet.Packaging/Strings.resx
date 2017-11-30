@@ -313,4 +313,7 @@ Valid from:</comment>
   <data name="ErrorPackageSignatureInvalid" xml:space="preserve">
     <value>Package signature is invalid.</value>
   </data>
+  <data name="CommitmentTypeIndicationAttributeInvalid" xml:space="preserve">
+    <value>commitment-type-indication attribute contains an invalid value.</value>
+  </data>
 </root>

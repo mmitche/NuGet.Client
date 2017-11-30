@@ -116,6 +116,15 @@ namespace NuGet.Packaging {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to commitment-type-indication attribute contains an invalid value..
+        /// </summary>
+        internal static string CommitmentTypeIndicationAttributeInvalid {
+            get {
+                return ResourceManager.GetString("CommitmentTypeIndicationAttributeInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unsupported targetFramework value &apos;{0}&apos;..
         /// </summary>
         internal static string Error_InvalidTargetFramework {
