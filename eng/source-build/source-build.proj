@@ -40,7 +40,7 @@
 
 
     <MSbuild Projects="$(ArcadeDir)/Build.proj"
-             Properties="@(_CommonProperties);Restore=true;Build=false;Pack=false;Publish=false;Rebuild=false;Test=false;IntegrationTest=false;PerformanceTest=false;PreventPrebuiltBuild=false;Projects=$(ProjectRoot)build/build.proj"
+             Properties="@(_CommonProperties);Restore=true;Build=false;Pack=false;Publish=false;Rebuild=false;Test=false;IntegrationTest=false;PerformanceTest=false;PreventPrebuiltBuild=false;BaseInnerSourceBuildCommand=echo skipping internal build with args:"
              Targets="Execute"
             />
 
