@@ -6,6 +6,8 @@
     <ProjectRoot>$(MSBuildThisFileDirectory)../../</ProjectRoot>
     <ArcadeDir Condition="'$(SOURCE_BUILT_SDK_DIR_ARCADE)' != ''">$(SOURCE_BUILT_SDK_DIR_ARCADE)/tools/</ArcadeDir>
     <ArcadeDir Condition="'$(ArcadeDir)' == ''">$(NuGetPackageRoot)/microsoft.dotnet.arcade.sdk/$(ARCADE_VERSION)/tools/</ArcadeDir>
+    <!-- Default to release configuration. Most scenarios pass this explicitly. -->
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
   </PropertyGroup>
 
   <Target Name="Build" DependsOnTargets="SourceBuildInnerBuild">
@@ -66,4 +68,3 @@
   </Target>
 
 </Project>
-
