@@ -6,63 +6,69 @@
     <ProjectRoot>$(MSBuildThisFileDirectory)../../</ProjectRoot>
     <ArcadeDir Condition="'$(SOURCE_BUILT_SDK_DIR_ARCADE)' != ''">$(SOURCE_BUILT_SDK_DIR_ARCADE)/tools/</ArcadeDir>
     <ArcadeDir Condition="'$(ArcadeDir)' == ''">$(NuGetPackageRoot)/microsoft.dotnet.arcade.sdk/$(ARCADE_VERSION)/tools/</ArcadeDir>
-    <!-- Default to release configuration. Most scenarios pass this explicitly. -->
-    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
   </PropertyGroup>
 
-  <Target Name="Build" DependsOnTargets="SourceBuildInnerBuild">
-    <Message Text="Running source-build Build target" Importance="High" />
-  </Target>
-
-  <Target Name="SourceBuildInnerBuild">
-    <Message Text="Running source-build InnerBuild target" Importance="High" />
+  <Target Name="Build">
 
     <!-- Construct a set of properties for the inner build. Only pass properties that have been set.-->
     <ItemGroup>
       <_CommonProperties Include="Configuration=$(Configuration)" />
-      <_CommonProperties Include="ArcadeBuildFromSource=$(ArcadeBuildFromSource)" Condition="'$(ArcadeBuildFromSource)' != ''" />
-      <!-- Outer build from source (ArcadeBuildFromSource) implies inner-build from source. -->
-      <_CommonProperties Include="ArcadeInnerBuildFromSource=$(ArcadeBuildFromSource)" Condition="'$(ArcadeBuildFromSource)' != ''" />
-      <_CommonProperties Include="DotNetBuildFromSource=$(DotNetBuildFromSource)" Condition="'$(DotNetBuildFromSource)' != ''" />
       <_CommonProperties Include="DotNetBuildFromSourceFlavor=$(DotNetBuildFromSourceFlavor)" Condition="'$(DotNetBuildFromSourceFlavor)' != ''" />
-      <_CommonProperties Include="DotNetBuildInnerRepo=true" />
-      <_CommonProperties Include="DotNetBuildOrchestrator=$(DotNetBuildOrchestrator)" />
-      <_CommonProperties Include="DotNetBuildPhase=InnerRepo" />
-      <_CommonProperties Include="DotNetBuildRepo=$(DotNetBuildRepo)" Condition="'$(DotNetBuildRepo)' != ''" />
+      <_CommonProperties Include="DotNetBuildOrchestrator=$(DotNetBuildOrchestrator)" Condition="'$(DotNetBuildOrchestrator)' != ''" />
+      <_CommonProperties Include="DotNetBuildRepo=true" />
       <_CommonProperties Include="DotNetBuildSourceOnly=$(DotNetBuildSourceOnly)" Condition="'$(DotNetBuildSourceOnly)' != ''" />
-      <_CommonProperties Include="DotNetPublishUsingPipelines=true" />
-      <_CommonProperties Include="PublishToSymbolServer=false" />
-      <_CommonProperties Include="AssetsLocalStorageDir=$(SourceBuiltAssetsDir)" />
-      <_CommonProperties Include="ShippingPackagesLocalStorageDir=$(SourceBuiltShippingPackagesDir)" />
-      <_CommonProperties Include="NonShippingPackagesLocalStorageDir=$(SourceBuiltNonShippingPackagesDir)" />
-      <_CommonProperties Include="AssetManifestsLocalStorageDir=$(SourceBuiltAssetManifestsDir)" />
     </ItemGroup>
 
+    <!-- Set of properties pass to the 'outer' build (but not the inner build). -->
+    <ItemGroup>
+      <_OuterBuildProperties Include="ArcadeBuildFromSource=$(ArcadeBuildFromSource)" Condition="'$(ArcadeBuildFromSource)' != ''" />
+      <_OuterBuildProperties Include="DotNetBuildPhase=Repo" />
+      <_OuterBuildProperties Include="PreventPrebuiltBuild=false" />
+      <_OuterBuildProperties Include="BaseInnerSourceBuildCommand=echo skipping inner sb invocation" />
+    </ItemGroup>
+
+    <!-- Set of properties to pass to the 'inner' build. -->
+    <ItemGroup>
+      <!-- Outer build from source (ArcadeBuildFromSource) implies inner-build from source. -->
+      <_InnerBuildProperties Include="ArcadeInnerBuildFromSource=$(ArcadeBuildFromSource)" Condition="'$(ArcadeBuildFromSource)' != ''" />
+      <_InnerBuildProperties Include="DotNetBuildFromSource=$(DotNetBuildFromSource)" Condition="'$(DotNetBuildFromSource)' != ''" />
+      <_InnerBuildProperties Include="DotNetBuildPhase=InnerRepo" />
+      <_InnerBuildProperties Include="DotNetBuildInnerRepo=true" />
+    </ItemGroup>
 
     <MSbuild Projects="$(ArcadeDir)/Build.proj"
-             Properties="@(_CommonProperties);Restore=true;Build=false;Pack=false;Publish=false;Rebuild=false;Test=false;IntegrationTest=false;PerformanceTest=false;PreventPrebuiltBuild=false;BaseInnerSourceBuildCommand=echo skipping internal build with args:"
+             Properties="@(_CommonProperties);@(_OuterBuildProperties);Restore=true;Build=false;Pack=false;Publish=false;Rebuild=false;Test=false;IntegrationTest=false;PerformanceTest=false"
              Targets="Execute"
             />
 
     <MSBuild Projects="$(ProjectRoot)build/build.proj"
-             Properties="_NETCORE_ENGINEERING_TELEMETRY=Restore;@(_CommonProperties)"
+             Properties="_NETCORE_ENGINEERING_TELEMETRY=Restore;@(_CommonProperties);@(_InnerBuildProperties)"
              Targets="RestoreXPlat" />
 
     <MSBuild Projects="$(ProjectRoot)build/build.proj"
-             Properties="_NETCORE_ENGINEERING_TELEMETRY=Build;@(_CommonProperties)"
+             Properties="_NETCORE_ENGINEERING_TELEMETRY=Build;@(_CommonProperties);@(_InnerBuildProperties)"
              Targets="BuildXPlat" />
 
     <MSBuild Projects="$(ProjectRoot)build/build.proj"
-             Properties="_NETCORE_ENGINEERING_TELEMETRY=Pack;@(_CommonProperties)"
+             Properties="_NETCORE_ENGINEERING_TELEMETRY=Pack;@(_CommonProperties);@(_InnerBuildProperties)"
              Targets="PackXPlat" />
 
-    <MSbuild Projects="$(ArcadeDir)/SourceBuild/AfterSourceBuild.proj"
-             Properties="_NETCORE_ENGINEERING_TELEMETRY=AfterSourceBuild;@(_CommonProperties);FailOnPrebuiltBaselineError=true;CurrentRepoSourceBuildArtifactsPackagesDir=$(ProjectRoot)artifacts/nupkgs/"
-             Condition="'$(DotNetBuildOrchestrator)' == 'true'" />
+    <ItemGroup>
+      <_PublishProperties Include="DotNetPublishUsingPipelines=true" />
+      <_PublishProperties Include="PublishToSymbolServer=false" />
+      <_PublishProperties Include="AssetsLocalStorageDir=$(SourceBuiltAssetsDir)" />
+      <_PublishProperties Include="ShippingPackagesLocalStorageDir=$(SourceBuiltShippingPackagesDir)" />
+      <_PublishProperties Include="NonShippingPackagesLocalStorageDir=$(SourceBuiltNonShippingPackagesDir)" />
+      <_PublishProperties Include="AssetManifestsLocalStorageDir=$(SourceBuiltAssetManifestsDir)" />
+    </ItemGroup>
 
     <MSBuild Projects="$(ArcadeDir)Publish.proj"
-             Properties="_NETCORE_ENGINEERING_TELEMETRY=Publish;@(_CommonProperties)"
+             Properties="_NETCORE_ENGINEERING_TELEMETRY=Publish;@(_CommonProperties);@(_PublishProperties);@(_InnerBuildProperties)"
              Targets="Publish"
+             Condition="'$(DotNetBuildOrchestrator)' == 'true'" />
+
+    <MSbuild Projects="$(ArcadeDir)/SourceBuild/AfterSourceBuild.proj"
+             Properties="_NETCORE_ENGINEERING_TELEMETRY=AfterSourceBuild;@(_CommonProperties);@(_OuterBuildProperties);FailOnPrebuiltBaselineError=true;CurrentRepoSourceBuildArtifactsPackagesDir=$(ProjectRoot)artifacts/nupkgs/"
              Condition="'$(DotNetBuildOrchestrator)' == 'true'" />
 
   </Target>
