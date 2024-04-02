@@ -5,6 +5,7 @@ git config --global protocol.file.allow always
 
 source="${BASH_SOURCE[0]}"
 scriptroot="$( cd -P "$( dirname "$source" )" && pwd )"
+configuration='Release'
 
 # resolve $SOURCE until the file is no longer a symlink
 while [[ -h $source ]]; do
