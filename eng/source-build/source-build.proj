@@ -31,6 +31,8 @@
       <_InnerBuildProperties Include="DotNetBuildInnerRepo=true" />
     </ItemGroup>
 
+    <!-- Pass _ImportOrUseTooling = false to avoid attempting to restore unneeded packages in Tools.proj.
+         NuGet.client uses package source mapping. If this repo onboards to arcade, this would no longer be needed. -->
     <MSbuild Projects="$(ArcadeDir)/Build.proj"
              Properties="@(_CommonProperties);@(_OuterBuildProperties);_ImportOrUseTooling=false;Restore=true;Build=false;Pack=false;Publish=false;Rebuild=false;Test=false;IntegrationTest=false;PerformanceTest=false"
              Targets="Execute"
@@ -63,8 +65,7 @@
              Condition="'$(DotNetBuildOrchestrator)' == 'true'" />
 
     <MSbuild Projects="$(ArcadeDir)/SourceBuild/AfterSourceBuild.proj"
-             Properties="_NETCORE_ENGINEERING_TELEMETRY=AfterSourceBuild;@(_CommonProperties);@(_OuterBuildProperties);FailOnPrebuiltBaselineError=true;CurrentRepoSourceBuildArtifactsPackagesDir=$(ProjectRoot)artifacts/nupkgs/"
-             Condition="'$(DotNetBuildOrchestrator)' == 'true'" />
+             Properties="_NETCORE_ENGINEERING_TELEMETRY=AfterSourceBuild;@(_CommonProperties);@(_OuterBuildProperties);FailOnPrebuiltBaselineError=true;CurrentRepoSourceBuildArtifactsPackagesDir=$(ProjectRoot)artifacts/nupkgs/" />
 
   </Target>
 
