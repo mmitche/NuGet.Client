@@ -3,7 +3,7 @@
     <Description>NuGet's configuration settings implementation.</Description>
     <NoWarn>$(NoWarn);CS1591;RS0041</NoWarn>
     <TargetFrameworks>$(TargetFrameworksLibrary)</TargetFrameworks>
-    <TargetFrameworks Condition="'$(DotNetBuildFromSource)' != 'true'">$(TargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks Condition="'$(DotNetBuildSourceOnly)' != 'true'">$(TargetFrameworks)</TargetFrameworks>
     <TargetFramework />
     <PackProject>true</PackProject>
     <Shipping>true</Shipping>

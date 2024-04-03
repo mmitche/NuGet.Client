@@ -13,7 +13,6 @@
     <!-- Construct a set of properties for the inner build. Only pass properties that have been set.-->
     <ItemGroup>
       <_CommonProperties Include="Configuration=$(Configuration)" />
-      <_CommonProperties Include="DotNetBuildFromSourceFlavor=$(DotNetBuildFromSourceFlavor)" Condition="'$(DotNetBuildFromSourceFlavor)' != ''" />
       <_CommonProperties Include="DotNetBuildOrchestrator=$(DotNetBuildOrchestrator)" Condition="'$(DotNetBuildOrchestrator)' != ''" />
       <_CommonProperties Include="DotNetBuildRepo=true" />
       <_CommonProperties Include="DotNetBuildSourceOnly=$(DotNetBuildSourceOnly)" Condition="'$(DotNetBuildSourceOnly)' != ''" />
@@ -21,7 +20,6 @@
 
     <!-- Set of properties pass to the 'outer' build (but not the inner build). -->
     <ItemGroup>
-      <_OuterBuildProperties Include="ArcadeBuildFromSource=$(ArcadeBuildFromSource)" Condition="'$(ArcadeBuildFromSource)' != ''" />
       <_OuterBuildProperties Include="DotNetBuildPhase=Repo" />
       <_OuterBuildProperties Include="PreventPrebuiltBuild=false" />
       <_OuterBuildProperties Include="BaseInnerSourceBuildCommand=echo skipping inner sb invocation" />
@@ -29,9 +27,6 @@
 
     <!-- Set of properties to pass to the 'inner' build. -->
     <ItemGroup>
-      <!-- Outer build from source (ArcadeBuildFromSource) implies inner-build from source. -->
-      <_InnerBuildProperties Include="ArcadeInnerBuildFromSource=$(ArcadeBuildFromSource)" Condition="'$(ArcadeBuildFromSource)' != ''" />
-      <_InnerBuildProperties Include="DotNetBuildFromSource=$(DotNetBuildFromSource)" Condition="'$(DotNetBuildFromSource)' != ''" />
       <_InnerBuildProperties Include="DotNetBuildPhase=InnerRepo" />
       <_InnerBuildProperties Include="DotNetBuildInnerRepo=true" />
     </ItemGroup>

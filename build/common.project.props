@@ -12,21 +12,21 @@
     <NETFXTargetFrameworkVersion>v4.7.2</NETFXTargetFrameworkVersion>
     <NETFXTargetFramework>net472</NETFXTargetFramework>
     <NETCoreTargetFramework>netcoreapp3.1</NETCoreTargetFramework>
-    <NETCoreTargetFramework Condition="'$(DotNetBuildFromSource)' == 'true'">net9.0</NETCoreTargetFramework>
+    <NETCoreTargetFramework Condition="'$(DotNetBuildSourceOnly)' == 'true'">net9.0</NETCoreTargetFramework>
     <NETCoreTestTargetFrameworks>net8.0</NETCoreTestTargetFrameworks>
     <NetStandardVersion>netstandard2.0</NetStandardVersion>
     <TargetFrameworksExe>$(NETFXTargetFramework);$(NETCoreTargetFramework)</TargetFrameworksExe>
     <TargetFrameworksExe Condition="'$(IsXPlat)' == 'true'">$(NETCoreTargetFramework)</TargetFrameworksExe>
     <TargetFrameworksExeForSigning>$(TargetFrameworksExe);netcoreapp5.0</TargetFrameworksExeForSigning>
     <TargetFrameworksExeForSigning Condition=" '$(IsXPlat)' == 'true' ">$(NETCoreTargetFramework);netcoreapp5.0</TargetFrameworksExeForSigning>
-    <TargetFrameworksExeForSigning Condition="'$(DotNetBuildFromSource)' == 'true'">$(TargetFrameworksExe)</TargetFrameworksExeForSigning>
+    <TargetFrameworksExeForSigning Condition="'$(DotNetBuildSourceOnly)' == 'true'">$(TargetFrameworksExe)</TargetFrameworksExeForSigning>
     <MinimalTargetFrameworksExeSigning>$(NETFXTargetFramework);net7.0</MinimalTargetFrameworksExeSigning>
     <MinimalTargetFrameworksExeSigning Condition=" '$(IsXPlat)' == 'true' ">net7.0</MinimalTargetFrameworksExeSigning>
-    <MinimalTargetFrameworksExeSigning Condition="'$(DotNetBuildFromSource)' == 'true'">$(NETCoreTargetFramework)</MinimalTargetFrameworksExeSigning>
+    <MinimalTargetFrameworksExeSigning Condition="'$(DotNetBuildSourceOnly)' == 'true'">$(NETCoreTargetFramework)</MinimalTargetFrameworksExeSigning>
     <TargetFrameworksLibrary>$(NETFXTargetFramework);$(NetStandardVersion)</TargetFrameworksLibrary>
-    <TargetFrameworksLibrary Condition="'$(DotNetBuildFromSource)' == 'true'">$(NETCoreTargetFramework);$(NetStandardVersion)</TargetFrameworksLibrary>
+    <TargetFrameworksLibrary Condition="'$(DotNetBuildSourceOnly)' == 'true'">$(NETCoreTargetFramework);$(NetStandardVersion)</TargetFrameworksLibrary>
     <TargetFrameworksLibraryForSigning>$(TargetFrameworksLibrary);netcoreapp5.0</TargetFrameworksLibraryForSigning>
-    <TargetFrameworksLibraryForSigning Condition="'$(DotNetBuildFromSource)' == 'true'">$(TargetFrameworksLibrary)</TargetFrameworksLibraryForSigning>
+    <TargetFrameworksLibraryForSigning Condition="'$(DotNetBuildSourceOnly)' == 'true'">$(TargetFrameworksLibrary)</TargetFrameworksLibraryForSigning>
     <TargetFrameworksLibraryForCrossVerificationTests>$(NETFXTargetFramework);$(NETCoreTestTargetFrameworks)</TargetFrameworksLibraryForCrossVerificationTests>
     <RepositoryRootDirectory>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'README.md'))\</RepositoryRootDirectory>
     <BuildCommonDirectory>$(RepositoryRootDirectory)build\</BuildCommonDirectory>
@@ -46,7 +46,7 @@
     <LocalizationWorkDirectory>$(RepositoryRootDirectory)localize</LocalizationWorkDirectory>
     <NoWarn>$(NoWarn);NU5105;MSB3277;NETSDK1138</NoWarn>
     <!-- additional warnings new in .NET 6 that we need to disable when building with source-build -->
-    <NoWarn Condition="'$(DotNetBuildFromSource)' == 'true'">$(NoWarn);CS1998;CA1416;CS0618;CS1574</NoWarn>
+    <NoWarn Condition="'$(DotNetBuildSourceOnly)' == 'true'">$(NoWarn);CS1998;CA1416;CS0618;CS1574</NoWarn>
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
 
@@ -83,7 +83,7 @@
     <!-- Same as SDK default, but without CandidateAssemblyFiles in front, which would search in Content items -->
     <AssemblySearchPaths>{HintPathFromItem};{TargetFrameworkDirectory};{RawFileName}</AssemblySearchPaths>
     <LangVersion>12</LangVersion>
-    <LangVersion Condition="'$(DotNetBuildFromSource)' == 'true'">latest</LangVersion>
+    <LangVersion Condition="'$(DotNetBuildSourceOnly)' == 'true'">latest</LangVersion>
   </PropertyGroup>
 
   <!-- NuGet's dev branch always targets the next upcoming version of .NET, so we always use the preview SDK -->
