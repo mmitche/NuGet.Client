@@ -4,7 +4,8 @@
   <PropertyGroup>
     <DefineConstants Condition="'$(TargetFramework)' == '$(NETFXTargetFramework)'">$(DefineConstants);IS_DESKTOP</DefineConstants>
     <DefineConstants Condition="'$(TargetFramework)' != '$(NETFXTargetFramework)'">$(DefineConstants);IS_CORECLR</DefineConstants>
-    <DefineConstants Condition="'$(TargetFramework)' != '$(NetStandardVersion)' And '$(TargetFramework)' != '$(NETCoreLegacyTargetFramework)'">$(DefineConstants);IS_SIGNING_SUPPORTED</DefineConstants>
+    <!-- Signing is not supported on netstandard or older netcore target frameworks. -->
+    <DefineConstants Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp' and $([MSBuild]::VersionGreaterThanOrEquals($(TargetFrameworkVersion), 5.0))">$(DefineConstants);IS_SIGNING_SUPPORTED</DefineConstants>
   </PropertyGroup>
 
   <!-- Include shared files for netcore projects -->
