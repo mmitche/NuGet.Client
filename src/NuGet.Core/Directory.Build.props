@@ -2,5 +2,11 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
   <PropertyGroup>
     <SignWithMicrosoftKey Condition="'$(SignWithMicrosoftKey)' == ''">true</SignWithMicrosoftKey>
+    <!-- C:\Users\chcosta\.nuget\packages\microsoft.dotnet.xlifftasks\9.0.0-beta.25204.5\build\Microsoft.DotNet.XliffTasks.targets(85,5): 
+    error : 'xlf\Strings.cs.xlf' for 'Strings.resx' does not exist. Run `msbuild /t:UpdateXlf` to update .xlf files or set UpdateXlfOnBuild=true 
+    to update them on every build, but note that it is strongly discouraged to set UpdateXlfOnBuild=true in official/CI build environments as 
+    they should not modify source code during the build. -->
+    <UpdateXlfOnBuild>true</UpdateXlfOnBuild>
+
   </PropertyGroup>
 </Project>

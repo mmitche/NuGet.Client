@@ -52,13 +52,16 @@
     </Compile>
   </ItemGroup>
   
+  <!-- chcosta hack (disabling) to workaround "VSSDK : error VSSDK1006: Two cto files have the same resource name 'Menus.ctmenu'. [C:\gh\NuGet.Client\src\NuGet.Clients\NuGet.Tools\NuGet.Tools.csproj]",
+     do not check this in.  More information about vsct is available at https://learn.microsoft.com/en-us/visualstudio/extensibility/internals/how-to-create-a-dot-vsct-file?view=vs-2022#to-add-a-vsct-file-to-project-compilation -->
+<!--
   <ItemGroup>
     <VSCTCompile Include="NuGetTools.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
       <SubType>Designer</SubType>
     </VSCTCompile>
   </ItemGroup>
-
+-->
   <ItemGroup>
     <EmbeddedResource Update="Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

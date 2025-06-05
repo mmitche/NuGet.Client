@@ -4,4 +4,7 @@
     <TestProjectType>Unit</TestProjectType>
   </PropertyGroup>
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  <PropertyGroup>
+    <UpdateXlfOnBuild>false</UpdateXlfOnBuild>
+  </PropertyGroup>
 </Project>
