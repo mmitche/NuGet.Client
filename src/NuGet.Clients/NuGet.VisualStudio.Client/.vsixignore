@@ -129,7 +129,6 @@ NuGet.VisualStudio.Contracts.xml
 NuGet.VisualStudio.Implementation.xml
 NuGet.VisualStudio.Internal.Contracts.xml
 NuGet.VisualStudio.Interop.xml
-NuGet.VisualStudio.OnlineEnvironment.Client.xml
 NuGet.VisualStudio.xml
 
 # chcosta, ignore the following because we're just testing xliff at the moment

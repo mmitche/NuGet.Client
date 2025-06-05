@@ -24,6 +24,7 @@ using NuGet.Test.Utility;
 using NuGet.Versioning;
 using NuGet.VisualStudio;
 using NuGet.VisualStudio.Internal.Contracts;
+using NuGet.VisualStudio.Telemetry;
 using Xunit;
 using ContractsItemFilter = NuGet.VisualStudio.Internal.Contracts.ItemFilter;
 
@@ -567,7 +568,7 @@ namespace NuGet.PackageManagement.UI.Test
             {
                 packageSourceMappingPatterns = new Dictionary<string, IReadOnlyList<string>>
                 {
-                    { remotePackageSourceName, new List<string>() { "transitiveA" } }
+                    { remotePackageSourceName.ToUpperInvariant(), new List<string>() { "transitiveA" } }
                 };
             }
 

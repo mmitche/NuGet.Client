@@ -104,9 +104,22 @@ namespace NuGet.Packaging.Signing
             var buffer = new byte[localFileHeader.UncompressedSize];
 
             reader.BaseStream.Seek(offsetToData, SeekOrigin.Begin);
-#pragma warning disable CA2022 // Avoid inexact read
-            reader.BaseStream.Read(buffer, offset: 0, count: buffer.Length);
-#pragma warning restore CA2022
+#if NET
+            reader.BaseStream.ReadExactly(buffer, offset: 0, count: buffer.Length);
+#else
+            int count = buffer.Length;
+            int offset = 0;
+            while (count > 0)
+            {
+                int read = reader.BaseStream.Read(buffer, offset, count);
+                if (read <= 0)
+                {
+                    throw new EndOfStreamException();
+                }
+                offset += read;
+                count -= read;
+            }
+#endif
 
             return new MemoryStream(buffer, writable: false);
         }
@@ -658,6 +671,7 @@ namespace NuGet.Packaging.Signing
             return (generalPurposeBitFlags & (1 << 11)) != 0;
         }
 
+#if IS_SIGNING_SUPPORTED
         private static bool CompareHash(byte[] expectedHash, byte[] actualHash)
         {
             if (expectedHash.Length != actualHash.Length)
@@ -674,5 +688,6 @@ namespace NuGet.Packaging.Signing
             }
             return true;
         }
+#endif
     }
 }

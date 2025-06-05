@@ -148,15 +148,6 @@ namespace NuGet.PackageManagement.UI
             }).PostOnFailure(nameof(PackageItemLoader), nameof(OnAvailabilityChanged));
         }
 
-        private async ValueTask<INuGetSearchService> GetSearchServiceAsync(CancellationToken cancellationToken)
-        {
-#pragma warning disable ISB001 // Dispose of proxies
-            INuGetSearchService searchService = await _serviceBroker.GetProxyAsync<INuGetSearchService>(NuGetServices.SearchService, cancellationToken);
-#pragma warning restore ISB001 // Dispose of proxies
-            Assumes.NotNull(searchService);
-            return searchService;
-        }
-
         private async ValueTask<INuGetPackageFileService> GetPackageFileServiceAsync(CancellationToken cancellationToken)
         {
 #pragma warning disable ISB001 // Dispose of proxies
@@ -336,12 +327,14 @@ namespace NuGet.PackageManagement.UI
 
                     if (listItem.PackageLevel == PackageLevel.TopLevel)
                     {
-                        listItem.UpdatePackageStatus(_installedPackages);
+                        listItem.UpdatePackageStatusAsync(_installedPackages)
+                            .PostOnFailure(nameof(PackageItemLoader), nameof(GetCurrent));
                     }
                     else
                     {
                         listItem.UpdateTransitiveInfo(metadataContextInfo);
-                        listItem.UpdateTransitivePackageStatus();
+                        listItem.UpdateTransitivePackageStatusAsync()
+                            .PostOnFailure(nameof(PackageItemLoader), nameof(GetCurrent));
                     }
 
                     listItemViewModels[packageId] = listItem;

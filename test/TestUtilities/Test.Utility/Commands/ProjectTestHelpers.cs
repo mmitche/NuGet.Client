@@ -11,6 +11,7 @@ using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.LibraryModel;
 using NuGet.ProjectModel;
+using NuGet.Protocol.Test;
 using NuGet.RuntimeModel;
 using NuGet.Test.Utility;
 
@@ -149,6 +150,14 @@ namespace NuGet.Commands.Test
             return updated;
         }
 
+        public static PackageSpec WithDependency(this PackageSpec spec, LibraryDependency libraryDependency)
+        {
+            AddDependency(spec, libraryDependency);
+
+            return spec;
+
+        }
+
         /// <summary>
         /// Creates a restore request for the first project in the <paramref name="projects"/> list. If <see cref="ProjectRestoreMetadata.Sources"/> has any values, it is used for creating the providers, otherwise <see cref="SimpleTestPathContext.PackageSource"/> from <paramref name="pathContext"/> will be used.
         /// </summary>
@@ -161,8 +170,9 @@ namespace NuGet.Commands.Test
                        [new PackageSource(pathContext.PackageSource)];
 
             var externalClosure = DependencyGraphSpecRequestProvider.GetExternalClosure(dgSpec, projectToRestore.RestoreMetadata.ProjectUniqueName).ToList();
+            var packageSourceMapping = PackageSourceMapping.GetPackageSourceMapping(Settings.LoadDefaultSettings(pathContext.SolutionRoot));
 
-            return new TestRestoreRequest(projectToRestore, sources, pathContext.UserPackagesFolder, logger)
+            return new TestRestoreRequest(projectToRestore, sources, pathContext.UserPackagesFolder, new TestSourceCacheContext(), packageSourceMapping, logger)
             {
                 LockFilePath = Path.Combine(projectToRestore.RestoreMetadata.OutputPath, LockFileFormat.AssetsFileName),
                 DependencyGraphSpec = dgSpec,

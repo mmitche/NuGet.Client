@@ -127,7 +127,14 @@ namespace NuGet.CommandLine.XPlat
 
                 if (listPackageArgs.ReportType != ReportType.Default)  // generic list package is offline -- no server lookups
                 {
-                    WarnForHttpSources(listPackageArgs, projectModel);
+                    List<PackageSource> httpSources = HttpSourcesUtility.GetDisallowedInsecureHttpSources(listPackageArgs.PackageSources);
+                    httpSources.AddRange(HttpSourcesUtility.GetDisallowedInsecureHttpSources(listPackageArgs.AuditSources));
+
+                    if (httpSources.Count > 0)
+                    {
+                        projectModel.AddProjectInformation(ProblemType.Error, HttpSourcesUtility.BuildHttpSourceErrorMessage(httpSources, "list package"));
+                        return;
+                    }
 
                     if (listPackageArgs.ReportType == ReportType.Vulnerable && listPackageArgs.AuditSources != null && listPackageArgs.AuditSources.Count > 0)
                     {
@@ -323,43 +330,6 @@ namespace NuGet.CommandLine.XPlat
             }
 
             return Enumerable.Empty<PackageVulnerabilityMetadata>();
-        }
-
-        private static void WarnForHttpSources(
-            ListPackageArgs listPackageArgs,
-            ListPackageProjectModel projectModel)
-        {
-            var httpPackageSources = new List<PackageSource>();
-
-            AddHttpPackageSources(listPackageArgs.PackageSources, httpPackageSources);
-            AddHttpPackageSources(listPackageArgs.AuditSources, httpPackageSources);
-
-            if (httpPackageSources.Count == 0)
-            {
-                return;
-            }
-
-            string warningMessage = httpPackageSources.Count == 1
-                ? string.Format(CultureInfo.CurrentCulture, Strings.Warning_HttpServerUsage, "list package", httpPackageSources[0])
-                : string.Format(CultureInfo.CurrentCulture, Strings.Warning_HttpServerUsage_MultipleSources, "list package", Environment.NewLine + string.Join(Environment.NewLine, httpPackageSources.Select(e => e.Name)));
-
-            projectModel.AddProjectInformation(ProblemType.Warning, warningMessage);
-        }
-
-        private static void AddHttpPackageSources(IEnumerable<PackageSource> packageSources, List<PackageSource> httpPackageSources)
-        {
-            if (packageSources == null)
-            {
-                return;
-            }
-
-            foreach (var packageSource in packageSources)
-            {
-                if (packageSource.IsHttp && !packageSource.IsHttps && !packageSource.AllowInsecureConnections)
-                {
-                    httpPackageSources.Add(packageSource);
-                }
-            }
         }
 
         public static bool FilterPackages(IEnumerable<FrameworkPackages> packages, ListPackageArgs listPackageArgs)
@@ -694,39 +664,6 @@ namespace NuGet.CommandLine.XPlat
         }
 
         /// <summary>
-        /// Prepares the calls to sources for current versions and updates
-        /// the list of tasks with the requests
-        /// </summary>
-        /// <param name="packageId">The package ID to get the current version metadata for</param>
-        /// <param name="requestedVersion">The version of the requested package</param>
-        /// <param name="listPackageArgs">List args for the token and source provider></param>
-        /// <param name="packagesVersionsDict">A reference to the unique packages in the project
-        /// to be able to handle different sources having different latest versions</param>
-        /// <returns>A list of tasks for all current versions for packages from all sources</returns>
-        private IList<Task> PrepareCurrentVersionsRequests(
-            string packageId,
-            NuGetVersion requestedVersion,
-            ListPackageArgs listPackageArgs,
-            Dictionary<string, IList<IPackageSearchMetadata>> packagesVersionsDict)
-        {
-            var requests = new List<Task>();
-            var sources = listPackageArgs.PackageSources;
-
-            foreach (var packageSource in sources)
-            {
-                requests.Add(
-                    GetPackageMetadataFromSourceAsync(
-                        packageSource,
-                        listPackageArgs,
-                        packageId,
-                        requestedVersion,
-                        packagesVersionsDict));
-            }
-
-            return requests;
-        }
-
-        /// <summary>
         /// Gets the highest version of a package from a specific source
         /// </summary>
         /// <param name="packageSource">The source to look for packages at</param>
@@ -754,48 +691,6 @@ namespace NuGet.CommandLine.XPlat
                     token: listPackageArgs.CancellationToken);
 
             return packages;
-        }
-
-        /// <summary>
-        /// Gets the requested version of a package from a specific source
-        /// </summary>
-        /// <param name="packageSource">The source to look for packages at</param>
-        /// <param name="listPackageArgs">The list args for the cancellation token</param>
-        /// <param name="packageId">Package to look for</param>
-        /// <param name="requestedVersion">Requested package version</param>
-        /// <param name="packagesVersionsDict">A reference to the unique packages in the project
-        /// to be able to handle different sources having different latest versions</param>
-        /// <returns>An updated package with the resolved version metadata from a single source</returns>
-        private async Task GetPackageMetadataFromSourceAsync(
-            PackageSource packageSource,
-            ListPackageArgs listPackageArgs,
-            string packageId,
-            NuGetVersion requestedVersion,
-            Dictionary<string, IList<IPackageSearchMetadata>> packagesVersionsDict)
-        {
-            SourceRepository sourceRepository = _sourceRepositoryCache[packageSource];
-            var packageMetadataResource = await sourceRepository
-                .GetResourceAsync<PackageMetadataResource>(listPackageArgs.CancellationToken);
-
-            using var sourceCacheContext = new SourceCacheContext();
-            var packages = await packageMetadataResource.GetMetadataAsync(
-                packageId,
-                includePrerelease: true,
-                includeUnlisted: true, // Include unlisted because deprecated packages may be unlisted.
-                sourceCacheContext: sourceCacheContext,
-                log: listPackageArgs.Logger,
-                token: listPackageArgs.CancellationToken);
-
-            var resolvedVersionsForPackage = packagesVersionsDict
-                .Single(p => p.Key.Equals(packageId, StringComparison.OrdinalIgnoreCase))
-                .Value;
-
-            var resolvedPackageVersionMetadata = packages.SingleOrDefault(p => p.Identity.Version.Equals(requestedVersion));
-            if (resolvedPackageVersionMetadata != null)
-            {
-                // Package version metadata found on source
-                resolvedVersionsForPackage.Add(resolvedPackageVersionMetadata);
-            }
         }
 
         /// <summary>
