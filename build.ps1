@@ -53,7 +53,8 @@ param (
     [switch]$PackageEndToEnd,
     [switch]$SkipDelaySigning,
     [switch]$Binlog,
-    [switch]$IncludeApex
+    [switch]$IncludeApex,
+	[switch]$UpdateXlfOnBuild
 )
 
 . "$PSScriptRoot\build\common.ps1"
@@ -142,6 +143,11 @@ Invoke-BuildStep $VSMessage {
     {
         $buildArgs += "-bl:msbuild.build.binlog"
     }
+	
+	if ($UpdateXlfOnBuild)
+	{
+		$buildArgs += "/p:UpdateXlfOnBuild=true"
+	}
 
     # Build and (If not $SkipUnitTest) Pack, Core unit tests, and Unit tests for VS
     Trace-Log ". `"$MSBuildExe`" $buildArgs"

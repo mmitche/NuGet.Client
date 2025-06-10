@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en" target-language="pl" original="../Resources.resx">
+    <body>
+      <trans-unit id="BindingRedirects">
+        <source>Binding Redirects</source>
+        <target state="new">Binding Redirects</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="CanNotCreateWindow">
+        <source>Can not create tool window.</source>
+        <target state="new">Can not create tool window.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="DTE_ProjectUnsupported">
+        <source>The project '{0}' is unsupported</source>
+        <target state="new">The project '{0}' is unsupported</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ErrorDialogBoxTitle">
+        <source>Operation failed</source>
+        <target state="new">Operation failed</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="NoProjectSelected">
+        <source>No project is selected for this operation.</source>
+        <target state="new">No project is selected for this operation.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="NoSupportedProjectsInSolution">
+        <source>No projects supported by NuGet in the solution.</source>
+        <target state="new">No projects supported by NuGet in the solution.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="NuGetSearchProvider_CategoryShortcut">
+        <source>nuget</source>
+        <target state="new">nuget</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="NuGetSearchProvider_Description">
+        <source>Search NuGet packages</source>
+        <target state="new">Search NuGet packages</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="NuGetSearchProvider_DisplayText">
+        <source>NuGet Packages</source>
+        <target state="new">NuGet Packages</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="NuGetStaticResult_DisplayText">
+        <source>Search Online for NuGet Packages matching '{0}'</source>
+        <target state="new">Search Online for NuGet Packages matching '{0}'</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="PackageManagement">
+        <source>Package Management</source>
+        <target state="new">Package Management</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="PackageReference">
+        <source>PackageReference</source>
+        <target state="new">PackageReference</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="PackageRestore">
+        <source>Package Restore</source>
+        <target state="new">Package Restore</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="PackageRestoreConsent">
+        <source>Allow NuGet to download missing packages</source>
+        <target state="new">Allow NuGet to download missing packages</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="PackagesConfig">
+        <source>Packages.config</source>
+        <target state="new">Packages.config</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ProjectHasAnInvalidNuGetConfiguration">
+        <source>{0} nuget configuration is invalid.</source>
+        <target state="new">{0} nuget configuration is invalid.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ProjectJsonMigrateErrorMessage">
+        <source>Project is not eligible for migration. Either the project is not packages.config based or doesn't support PackageReference yet. Visit https://docs.microsoft.com/en-us/nuget/reference/migrate-packages-config-to-package-reference for more information.</source>
+        <target state="new">Project is not eligible for migration. Either the project is not packages.config based or doesn't support PackageReference yet. Visit https://docs.microsoft.com/en-us/nuget/reference/migrate-packages-config-to-package-reference for more information.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ProjectMigrateErrorMessage">
+        <source>Project is not eligible for migration as it's not project.json based.</source>
+        <target state="new">Project is not eligible for migration as it's not project.json based.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="SettingsStoredInNuGetConfiguration">
+        <source>These settings are stored in %NuGet.Config% files</source>
+        <target state="new">These settings are stored in %NuGet.Config% files</target>
+        <note>Do not translate % % or what is between them</note>
+      </trans-unit>
+      <trans-unit id="SolutionIsNotSaved">
+        <source>Solution is not saved. Please save your solution before managing NuGet packages.</source>
+        <target state="new">Solution is not saved. Please save your solution before managing NuGet packages.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Text_ConfigurationFiles_CommonLink">
+        <source>Common NuGet configurations: [How settings are applied](https://aka.ms/nuget/how-settings-are-applied/)</source>
+        <target state="new">Common NuGet configurations: [How settings are applied](https://aka.ms/nuget/how-settings-are-applied/)</target>
+        <note>Please leave the [ and ] brackets in place and do translate the words between them. Do not translate the URL inside ( ).</note>
+      </trans-unit>
+      <trans-unit id="Text_ConfigurationFiles_Priority">
+        <source>Configuration files are listed in order from highest to lowest priority.</source>
+        <target state="new">Configuration files are listed in order from highest to lowest priority.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="Text_FilePath_Header">
+        <source>File Path</source>
+        <target state="new">File Path</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="clearLocalResources">
+        <source>Clear NuGet local resources</source>
+        <target state="new">Clear NuGet local resources</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="defaultPackageManagementFormat">
+        <source>Default package management format</source>
+        <target state="new">Default package management format</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="packageRestoreAutomatic">
+        <source>Automatically check for missing packages during build in Visual Studio</source>
+        <target state="new">Automatically check for missing packages during build in Visual Studio</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="showPackageManagementChooser">
+        <source>Prompt for format selection on first package install</source>
+        <target state="new">Prompt for format selection on first package install</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="skipBindingRedirects">
+        <source>Skip applying binding redirects</source>
+        <target state="new">Skip applying binding redirects</target>
+        <note />
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
